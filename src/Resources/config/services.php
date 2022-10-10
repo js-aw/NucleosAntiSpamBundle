@@ -28,6 +28,7 @@ return static function (ContainerConfigurator $container): void {
             ])
             ->args([
                 new Reference('translator'),
+                new Reference('event_dispatcher'),
                 [],
             ])
 
@@ -43,6 +44,7 @@ return static function (ContainerConfigurator $container): void {
             ->args([
                 new Reference('nucleos_antispam.provider'),
                 new Reference('translator'),
+                new Reference('event_dispatcher'),
                 [],
             ])
 

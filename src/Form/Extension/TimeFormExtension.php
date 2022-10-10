@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Nucleos\AntiSpamBundle\Form\Extension;
 
+use Nucleos\AntiSpamBundle\Form\Event\AntiSpamEvent;
 use Nucleos\AntiSpamBundle\Form\EventListener\AntiSpamTimeListener;
 use Nucleos\AntiSpamBundle\Provider\TimeProviderInterface;
 use Symfony\Component\Form\AbstractTypeExtension;
@@ -22,6 +23,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class TimeFormExtension extends AbstractTypeExtension
 {
@@ -37,11 +39,12 @@ final class TimeFormExtension extends AbstractTypeExtension
     /**
      * @param array<string, mixed> $defaults
      */
-    public function __construct(TimeProviderInterface $timeProvider, TranslatorInterface $translator, array $defaults)
+    public function __construct(TimeProviderInterface $timeProvider, TranslatorInterface $translator, EventDispatcherInterface $eventDispatcher, array $defaults)
     {
         $this->timeProvider      = $timeProvider;
         $this->translator        = $translator;
         $this->defaults          = $defaults;
+        $this->eventDispatcher   = $eventDispatcher;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -49,6 +52,12 @@ final class TimeFormExtension extends AbstractTypeExtension
         if (true !== $options['antispam_time']) {
             return;
         }
+
+        $evt = new AntiSpamEvent();
+        $this->eventDispatcher->dispatch($evt, 'nucleos_antispam.form.extension.event');       
+        if(true === $evt->isDisabled()) {
+            return;
+        }        
 
         $providerOptions = [
             'min' => $options['antispam_time_min'],

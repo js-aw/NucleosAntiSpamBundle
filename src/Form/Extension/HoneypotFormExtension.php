@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Nucleos\AntiSpamBundle\Form\Extension;
 
+use Nucleos\AntiSpamBundle\Form\Event\AntiSpamEvent;
 use Nucleos\AntiSpamBundle\Form\EventListener\AntiSpamHoneypotListener;
 use RuntimeException;
 use Symfony\Component\Form\AbstractTypeExtension;
@@ -24,6 +25,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class HoneypotFormExtension extends AbstractTypeExtension
 {
@@ -34,15 +36,22 @@ final class HoneypotFormExtension extends AbstractTypeExtension
      */
     private array $defaults;
 
-    public function __construct(TranslatorInterface $translator, array $defaults)
+    public function __construct(TranslatorInterface $translator, EventDispatcherInterface $eventDispatcher, array $defaults)
     {
         $this->translator        = $translator;
         $this->defaults          = $defaults;
+        $this->eventDispatcher   = $eventDispatcher;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (true !== $options['antispam_honeypot']) {
+            return;
+        }
+
+        $evt = new AntiSpamEvent();
+        $this->eventDispatcher->dispatch($evt, 'nucleos_antispam.form.extension.event');       
+        if(true === $evt->isDisabled()) {
             return;
         }
 

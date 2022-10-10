@@ -58,7 +58,7 @@ final class NucleosAntiSpamExtension extends Extension
     {
         $container
             ->getDefinition('nucleos_antispam.form.extension.type.time')
-            ->replaceArgument(2, $config['time'])
+            ->replaceArgument(3, $config['time'])
         ;
     }
 
@@ -69,7 +69,7 @@ final class NucleosAntiSpamExtension extends Extension
     {
         $container
             ->getDefinition('nucleos_antispam.form.extension.type.honeypot')
-            ->replaceArgument(1, $config['honeypot'])
+            ->replaceArgument(2, $config['honeypot'])
         ;
 
         $container->setAlias('nucleos_antispam.provider', $config['honeypot']['provider']);
