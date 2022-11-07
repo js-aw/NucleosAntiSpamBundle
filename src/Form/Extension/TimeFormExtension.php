@@ -75,6 +75,12 @@ final class TimeFormExtension extends AbstractTypeExtension
             return;
         }
 
+        $evt = new AntiSpamEvent();
+        $this->eventDispatcher->dispatch($evt, 'nucleos_antispam.form.extension.event');       
+        if(true === $evt->isDisabled()) {
+            return;
+        }
+
         $this->timeProvider->createFormProtection($form->getName());
     }
 

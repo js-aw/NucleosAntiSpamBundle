@@ -67,6 +67,12 @@ final class HoneypotFormExtension extends AbstractTypeExtension
             return;
         }
 
+        $evt = new AntiSpamEvent();
+        $this->eventDispatcher->dispatch($evt, 'nucleos_antispam.form.extension.event');       
+        if(true === $evt->isDisabled()) {
+            return;
+        }
+
         if ($form->has($options['antispam_honeypot_field'])) {
             throw new RuntimeException(sprintf('Honeypot field "%s" is already used.', $options['antispam_honeypot_field']));
         }
